@@ -1,0 +1,53 @@
+[
+  {
+    "name": "John Doe",
+    "email": "johndoe@example.com",
+    "location": "New York",
+    "bio": "Experienced web developer specializing in full-stack development.",
+    "profilePicture": "https://via.placeholder.com/150",
+    "password": "password123",
+    "offeredSkills": [
+      {
+        "id": "1",
+        "name": "JavaScript",
+        "description": "Proficient in JavaScript, both client-side and server-side.",
+        "offeredBy": "John Doe",
+        "location": "New York",
+        "level": "Advanced",
+        "availableTimes": ["Mon 9am-12pm", "Wed 2pm-5pm"]
+      },
+      {
+        "id": "2",
+        "name": "Node.js",
+        "description": "Experienced in building RESTful APIs using Node.js.",
+        "offeredBy": "John Doe",
+        "location": "New York",
+        "level": "Intermediate",
+        "availableTimes": ["Mon 1pm-4pm", "Thu 10am-12pm"]
+      }
+    ],
+    "desiredSkills": ["React", "MongoDB"],
+    "notifications": []
+  },
+  {
+    "name": "Jane Smith",
+    "email": "janesmith@example.com",
+    "location": "Los Angeles",
+    "bio": "Graphic designer with a passion for creative design and digital art.",
+    "profilePicture": "https://via.placeholder.com/150",
+    "password": "securepassword123",
+    "offeredSkills": [
+      {
+        "id": "3",
+        "name": "Graphic Design",
+        "description": "Proficient in Adobe Photoshop, Illustrator, and other design tools.",
+        "offeredBy": "Jane Smith",
+        "location": "Los Angeles",
+        "level": "Advanced",
+        "availableTimes": ["Mon 10am-1pm", "Fri 2pm-6pm"]
+      }
+    ],
+    "desiredSkills": ["Web Design", "Illustration"],
+    "notifications": []
+  }
+]

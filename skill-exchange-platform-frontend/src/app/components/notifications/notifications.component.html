@@ -1,0 +1,12 @@
+<!-- notifications.component.html -->
+<div *ngIf="notifications.length === 0" class="p-4 text-center text-gray-500">
+  No notifications
+</div>
+<div *ngFor="let notification of notifications" class="p-4 border-b border-gray-200 hover:bg-gray-100">
+  <p class="text-sm text-gray-700">{{ notification.message }}</p>
+  <p class="text-xs text-gray-500">{{ notification.createdAt | date:'short' }}</p>
+  <a [routerLink]="['/profile', notification.from]" class="text-blue-500 hover:underline">View Profile</a>
+</div>
+<div *ngIf="errorMessage" class="p-4 text-red-500">
+  {{ errorMessage }}
+</div>

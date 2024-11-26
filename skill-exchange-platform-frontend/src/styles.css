@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Add any custom styles below */
+body {
+  @apply bg-gray-50;
+}
+
+.modal {
+  @apply backdrop-blur-sm;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-down {
+  animation: fadeInDown 0.3s ease-out;
+}
+
+.notification-dropdown {
+  @apply absolute right-0 mt-12 w-64 bg-white shadow-lg rounded-lg z-50;
+}
+
+.notification-item {
+  @apply p-4 border-b border-gray-200 hover:bg-gray-100;
+}

@@ -1,0 +1,51 @@
+<div class="h-[calc(100vh-64px)] bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-md">
+    <h2 class="text-center text-3xl font-bold text-gray-900">Login</h2>
+    
+    <form [formGroup]="loginForm" (ngSubmit)="login()" class="mt-8 space-y-6">
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+        <input 
+          id="email" 
+          type="email" 
+          formControlName="email"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4"
+        />
+        <small 
+          *ngIf="formControls['email'].invalid && formControls['email'].touched"
+          class="text-red-500 text-xs mt-1"
+        >
+          Please enter a valid email.
+        </small>
+      </div>
+
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+        <input 
+          id="password" 
+          type="password" 
+          formControlName="password"
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 py-3 px-4"
+        />
+        <small 
+          *ngIf="formControls['password'].invalid && formControls['password'].touched"
+          class="text-red-500 text-xs mt-1"
+        >
+            Password must be at least 6 characters.
+          </small>
+        </div>
+  
+        <div *ngIf="errorMessage" class="rounded-md bg-red-50 p-4">
+          <p class="text-sm text-red-700">{{ errorMessage }}</p>
+        </div>
+  
+        <button 
+          type="submit" 
+          [disabled]="loginForm.invalid || isLoading"
+          class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Login
+        </button>
+      </form>
+    </div>
+  </div>

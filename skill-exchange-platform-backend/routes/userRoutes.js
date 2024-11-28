@@ -156,10 +156,14 @@ router.get('/', async (req, res) => {
     });
   }
 });
-
 router.get('/:id/notifications', async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await User.findById(req.params.id)
+      .populate({
+        path: 'notifications.from',
+        select: '_id name'
+      });
+    
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -169,7 +173,6 @@ router.get('/:id/notifications', async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch notifications' });
   }
 });
-
 // backend/routes/userRoutes.js - Add or update notification route
 router.post('/:id/contact', async (req, res) => {
   try {
@@ -181,7 +184,7 @@ router.post('/:id/contact', async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Add notification
+    // Add notification with proper from field
     user.notifications.push({
       message: `${fromUser.name} wants to learn ${message}`,
       from: fromUser._id,
@@ -196,5 +199,6 @@ router.post('/:id/contact', async (req, res) => {
     res.status(500).json({ message: 'Failed to send contact request' });
   }
 });
+   
 
 module.exports = router;

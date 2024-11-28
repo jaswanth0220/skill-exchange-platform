@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { UserService } from '../../services/user.service';
+import { ActivatedRoute,Router } from '@angular/router';
 import { User } from '../../models/user.model';
 // import { UserProfileService } from '../../services/user-profile.service';
 import { firstValueFrom } from 'rxjs';
@@ -20,11 +21,82 @@ export class UserProfileComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
   previewImage: string | ArrayBuffer | null = null;
+  isCurrentUserProfile = false;
   constructor(
     private userService: UserService,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private route: ActivatedRoute,
+    private router: Router 
   ) {
     this.initializeForm();
+  }
+
+  ngOnInit(): void {
+    this.route.params.subscribe(params => {
+      const userId = params['id']; 
+      console.log('Route parameter userId:', userId);
+
+      // Validate the userId
+      if (userId && userId !== 'undefined') {
+        // Viewing another user's profile
+        this.loadUserProfile(userId);
+      } else {
+        // If no valid user ID, try to load current user's profile or redirect
+        this.loadCurrentUserProfile();
+      }
+    });
+  }
+  private loadCurrentUserProfile(): void {
+    this.isLoading = true;
+    this.isCurrentUserProfile = true;
+    this.userService.getUser().subscribe({
+      next: (user) => {
+        this.user = user;
+        this.initializeFormWithUser(user);
+      },
+      error: (error) => {
+        this.errorMessage = 'Failed to load profile';
+        console.error('Error loading profile:', error);
+        // Redirect to home or login if profile can't be loaded
+        this.router.navigate(['/']);
+      },
+      complete: () => {
+        this.isLoading = false;
+      }
+    });
+  }
+
+
+  private loadUserProfile(userId: string): void {
+    console.log('Loading user profile:', userId);
+    this.isLoading = true;
+    this.isCurrentUserProfile = false;
+    this.userService.getUserById(userId).subscribe({
+      next: (user) => {
+        this.user = user;
+        this.initializeFormWithUser(user);
+      },
+      error: (error) => {
+        this.errorMessage = 'Failed to load user profile';
+        console.error('Error loading user profile:', error);
+      },
+      complete: () => {
+        this.isLoading = false;
+      }
+    });
+  }
+  private initializeFormWithUser(user: User): void {
+    this.profileForm.patchValue({
+      name: user.name,
+      email: user.email,
+      location: user.location,
+      bio: user.bio
+    });
+    
+    // Disable form for non-current user profiles
+    if (!this.isCurrentUserProfile) {
+      this.profileForm.disable();
+    }
   }
   triggerFileInput(): void {
     const fileInput = document.getElementById('fileInput') as HTMLInputElement;
@@ -60,35 +132,7 @@ export class UserProfileComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-    this.loadUserProfile();
-  }
-
-  private loadUserProfile(): void {
-    this.isLoading = true;
-    this.userService.getUser().subscribe({
-      next: (user) => {
-        this.user = user;
-        if (this.user) {
-          // Initialize form with user data
-          this.profileForm.patchValue({
-            name: this.user.name,
-            email: this.user.email,
-            location: this.user.location,
-            bio: this.user.bio
-          });
-        }
-      },
-      error: (error) => {
-        this.errorMessage = 'Failed to load profile';
-        console.error('Error loading profile:', error);
-      },
-      complete: () => {
-        this.isLoading = false;
-      }
-    });
-  }
-
+  
   openModal(): void {
     if (this.user) {
       // Reset form with current user data
@@ -115,6 +159,7 @@ export class UserProfileComponent implements OnInit {
   }
 
   async updateProfile(): Promise<void> {
+    if (!this.isCurrentUserProfile) return;
     if (this.profileForm.valid && this.user) {
       this.isLoading = true;
       try {

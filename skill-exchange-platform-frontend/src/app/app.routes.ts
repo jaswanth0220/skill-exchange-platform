@@ -6,32 +6,11 @@ import { LoginComponent } from './components/login/login.component';
 import { SignupComponent } from './components/signup/signup.component';
 
 export const routes: Routes = [
-    {
-        path: '',
-        component: HomeComponent
-    },
-    {
-        path: 'profile',
-        component: UserProfileComponent
-    },
-    {
-        path:'skills',
-        component:SkillListingComponent   
-    },
-    {
-        path:'login',
-        component:LoginComponent
-    },
-    {
-        path: 'signup',
-        component: SignupComponent
-    },
-    // {
-    //     path:'profie/:id',
-    //     component:UserProfileComponent
-    // },
-    {
-        path: '**',
-        redirectTo: '',
-    }
+    { path: '', component: HomeComponent },
+  { path: 'profile/:id', component: UserProfileComponent },
+  { path: 'profile', component: UserProfileComponent },
+  { path: 'skills', component: SkillListingComponent },
+  { path: 'login', component: LoginComponent },
+  { path: 'signup', component: SignupComponent },
+  { path: '**', redirectTo: '' },
 ];

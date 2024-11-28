@@ -8,21 +8,11 @@ import { User } from '../models/user.model';
   providedIn: 'root',
 })
 export class UserService {
-  private apiUrl = 'http://localhost:5000/api/users'; // Match backend URL
+  private apiUrl = 'http://localhost:5000/api/users';
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * Fetch the current user's profile from the backend API.
-   * @returns {Observable<User>} - The user profile data.
-   */
-  getUser(): Observable<User> {
-    // Get user ID from localStorage (set during login)
-    const userId = localStorage.getItem('userId');
-    if (!userId) {
-      return throwError(() => new Error('User not authenticated'));
-    }
-
+  getUserById(userId: string): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/${userId}`).pipe(
       catchError((error) => {
         console.error('Failed to fetch user profile', error);
@@ -30,7 +20,13 @@ export class UserService {
       })
     );
   }
-  getUserById(userId: string): Observable<User> {
+
+  getUser(): Observable<User> {
+    const userId = localStorage.getItem('userId');
+    if (!userId) {
+      return throwError(() => new Error('User not authenticated'));
+    }
+
     return this.http.get<User>(`${this.apiUrl}/${userId}`).pipe(
       catchError((error) => {
         console.error('Failed to fetch user profile', error);

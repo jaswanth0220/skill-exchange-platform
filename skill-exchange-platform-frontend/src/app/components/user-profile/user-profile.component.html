@@ -38,9 +38,7 @@
               <p class="text-gray-600">{{ user.location }}</p>
             </div>
           </div>
-          <button (click)="openModal()" class="rounded-lg bg-primary px-4 py-2 text-white hover:bg-primary-focus">
-            Edit Profile
-          </button>
+          <button *ngIf="isCurrentUserProfile" (click)="openModal()">Edit Profile</button>
         </div>
 
         <!-- Profile Details -->

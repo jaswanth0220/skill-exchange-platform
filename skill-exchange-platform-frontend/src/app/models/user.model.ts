@@ -12,6 +12,10 @@ export interface User {
   password: string; // User password
   notifications?: {
     message: string;
+    from: {
+      _id: string;
+      name: string;
+    };
     read: boolean;
     createdAt: Date;
   }[];

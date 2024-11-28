@@ -19,7 +19,10 @@
                 </svg>
                 <span *ngIf="unreadCount > 0" class="badge badge-sm badge-primary">{{ unreadCount }}</span>
               </button>
-              <div *ngIf="showNotifications" class="absolute right-0 mt-12 w-64 bg-white shadow-lg rounded-lg z-50">
+              <div *ngIf="showNotifications" 
+                   class="absolute right-0 mt-12 w-64 bg-white shadow-lg rounded-lg z-50"
+                   clickOutside
+                   (clickOutside)="showNotifications = false">
                 <app-notifications></app-notifications>
               </div>
             </li>

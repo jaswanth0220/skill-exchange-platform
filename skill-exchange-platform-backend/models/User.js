@@ -2,6 +2,22 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs'); 
 
+const notificationSchema = new mongoose.Schema({
+  message: String,
+  from: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  read: {
+    type: Boolean,
+    default: false
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
+  }
+});
+
 const UserSchema = new mongoose.Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
@@ -19,12 +35,7 @@ const UserSchema = new mongoose.Schema({
     availableTimes: [String]
   }],
   desiredSkills: [String],
-  notifications: [{
-    message: String,
-    from: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
-    read: { type: Boolean, default: false },
-    createdAt: { type: Date, default: Date.now }
-  }]
+  notifications: [notificationSchema]
 }, { timestamps: true });
 
 // Hash the password before saving it to the database

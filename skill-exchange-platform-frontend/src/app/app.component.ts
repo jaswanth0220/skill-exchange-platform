@@ -4,10 +4,11 @@ import { AuthService } from './services/auth.service';
 import { CommonModule } from '@angular/common';
 import { NotificationService } from './services/notification.service';
 import { NotificationsComponent } from "./components/notifications/notifications.component";
+import { ClickOutsideDirective } from './directives/click-outside.directive';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, CommonModule, NotificationsComponent],
+  imports: [RouterOutlet, RouterLink, CommonModule, NotificationsComponent, ClickOutsideDirective],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

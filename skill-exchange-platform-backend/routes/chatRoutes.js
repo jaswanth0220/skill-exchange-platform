@@ -26,13 +26,19 @@ router.get('/rooms/:roomId/messages', auth, async (req, res) => {
     const chatRoom = await ChatRoom.findOne({
       _id: req.params.roomId,
       participants: req.user._id
-    }).populate('messages.sender', '_id name');
+    });
 
     if (!chatRoom) {
       return res.status(404).json({ message: 'Chat room not found' });
     }
 
-    res.json(chatRoom.messages);
+    // Properly populate the messages with sender information
+    const populatedRoom = await ChatRoom.populate(chatRoom, {
+      path: 'messages.sender',
+      select: '_id name'
+    });
+
+    res.json(populatedRoom.messages);
   } catch (error) {
     console.error('Error fetching messages:', error);
     res.status(500).json({ message: 'Failed to fetch messages' });

@@ -37,7 +37,6 @@ mongoose.connect('mongodb://localhost:27017/skill-exchange', {
 });
 
 function setupSocketIO() {
-  // Socket.IO middleware for authentication
   io.use((socket, next) => {
     const token = socket.handshake.auth.token;
     if (!token) {
@@ -50,9 +49,13 @@ function setupSocketIO() {
     });
   });
 
-  // Socket.IO connection handling
   io.on('connection', (socket) => {
     console.log('User connected:', socket.userId);
+
+    socket.on('joinRoom', (roomId) => {
+      socket.join(roomId);
+      console.log(`User ${socket.userId} joined room ${roomId}`);
+    });
 
     socket.on('sendMessage', async (data, callback) => {
       try {
@@ -67,29 +70,39 @@ function setupSocketIO() {
         }
 
         const newMessage = {
+          _id: new mongoose.Types.ObjectId(),
           sender: socket.userId,
           content,
           read: false,
-          roomId
+          roomId,
+          createdAt: new Date()
         };
 
         chatRoom.messages.push(newMessage);
         chatRoom.lastMessage = newMessage;
         await chatRoom.save();
 
-        // Emit to all participants
-        chatRoom.participants.forEach(participantId => {
-          io.to(participantId.toString()).emit('newMessage', newMessage);
+        // Populate the sender information before emitting
+        const populatedMessage = await ChatRoom.populate(newMessage, {
+          path: 'sender',
+          select: '_id name'
         });
 
-        callback(newMessage);
+        // Broadcast to all clients in the room
+        socket.to(roomId).emit('newMessage', populatedMessage);
+        // Also emit to sender
+        socket.emit('newMessage', populatedMessage);
+        
+        callback(populatedMessage);
       } catch (error) {
         console.error('Error sending message:', error);
         callback({ error: 'Failed to send message' });
       }
     });
 
-    socket.join(socket.userId);
+    socket.on('disconnect', () => {
+      console.log('User disconnected:', socket.userId);
+    });
   });
 }
 

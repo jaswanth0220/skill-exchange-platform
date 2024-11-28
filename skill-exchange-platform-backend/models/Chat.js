@@ -14,7 +14,7 @@ const messageSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   }
-}, { timestamps: true });
+}, { timestamps: true, toJSON: { virtuals: true } });
 
 const chatRoomSchema = new mongoose.Schema({
   participants: [{

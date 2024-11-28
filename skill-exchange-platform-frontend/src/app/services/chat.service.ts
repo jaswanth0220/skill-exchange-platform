@@ -38,10 +38,16 @@ export class ChatService {
     this.socket = io('http://localhost:5000', {
       auth: {
         token: localStorage.getItem('token')
-      }
+      },
+      transports: ['websocket']
+    });
+
+    this.socket.on('connect', () => {
+      console.log('Socket connected with ID:', this.socket.id);
     });
 
     this.socket.on('newMessage', (message: Message) => {
+      console.log('New message received in service:', message);
       this.newMessageSubject.next(message);
     });
   }
@@ -75,8 +81,12 @@ export class ChatService {
 
   sendMessage(roomId: string, content: string): Observable<Message> {
     return new Observable(observer => {
-      this.socket.emit('sendMessage', { roomId, content }, (response: Message) => {
-        observer.next(response);
+      this.socket.emit('sendMessage', { roomId, content }, (response: any) => {
+        if (response.error) {
+          observer.error(response.error);
+        } else {
+          observer.next(response);
+        }
         observer.complete();
       });
     });
@@ -93,5 +103,9 @@ export class ChatService {
         throw error;
       })
     );
+  }
+
+  joinRoom(roomId: string): void {
+    this.socket.emit('joinRoom', roomId);
   }
 }

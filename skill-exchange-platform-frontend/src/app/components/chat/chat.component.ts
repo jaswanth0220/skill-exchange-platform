@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChatService, Message, ChatRoom } from '../../services/chat.service';
@@ -24,7 +24,8 @@ export class ChatComponent implements OnInit {
   constructor(
     private chatService: ChatService, 
     private authService: AuthService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private changeDetectorRef: ChangeDetectorRef
   ) {
     this.authService.getCurrentUser().subscribe(user => {
       this.currentUser = user;
@@ -34,11 +35,15 @@ export class ChatComponent implements OnInit {
   ngOnInit(): void {
     this.loadChatRooms();
     
+    // Subscribe to new messages
     this.chatService.getNewMessages().subscribe(message => {
+      console.log('Received message in component:', message);
       if (this.currentRoom && message.roomId === this.currentRoom._id) {
-        // Only add the message if it's not already in the array
+        // Check if message already exists
         if (!this.messages.some(m => m._id === message._id)) {
           this.messages = [...this.messages, message];
+          this.changeDetectorRef.detectChanges();
+          this.scrollToBottom();
         }
       }
     });
@@ -59,6 +64,15 @@ export class ChatComponent implements OnInit {
     });
   }
 
+  private scrollToBottom(): void {
+    setTimeout(() => {
+      const messageContainer = document.querySelector('.overflow-y-auto');
+      if (messageContainer) {
+        messageContainer.scrollTop = messageContainer.scrollHeight;
+      }
+    }, 0);
+  }
+
   loadChatRooms(): void {
     this.isLoading = true;
     this.chatService.getChatRooms().subscribe({
@@ -76,6 +90,7 @@ export class ChatComponent implements OnInit {
   selectRoom(room: ChatRoom): void {
     this.currentRoom = room;
     this.messages = [];
+    this.chatService.joinRoom(room._id); // Join the socket room
     this.loadMessages(room._id);
   }
 
@@ -101,16 +116,18 @@ export class ChatComponent implements OnInit {
 
   sendMessage(): void {
     if (!this.currentRoom || !this.newMessage.trim()) return;
+    
     const content = this.newMessage.trim();
-    this.newMessage = '';
+    this.newMessage = ''; // Clear input immediately
+
     this.chatService.sendMessage(this.currentRoom._id, content).subscribe({
       next: (message) => {
-        if (!this.messages.some(m => m._id === message._id)) {
-          this.messages = [...this.messages, message];
-        }
+        // Message will be added through the socket subscription
+        console.log('Message sent successfully:', message);
       },
       error: (error) => {
         this.errorMessage = 'Failed to send message';
+        console.error('Error sending message:', error);
       }
     });
   }

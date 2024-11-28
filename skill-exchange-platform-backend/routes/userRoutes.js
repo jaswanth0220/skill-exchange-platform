@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 // Get user profile by ID
 router.get('/:id', async (req, res) => {
   try {
@@ -112,22 +113,13 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Include _id in the response along with other user data
-    res.status(200).json({
-      message: 'Login successful',
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        location: user.location,
-        bio: user.bio,
-        profilePicture: user.profilePicture,
-        offeredSkills: user.offeredSkills,
-        desiredSkills: user.desiredSkills
-      }
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET || 'your-secret-key');
+    res.json({
+      user: user,
+      token: token
     });
-  } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err });
+  } catch (error) {
+    res.status(401).json({ message: 'Authentication failed' });
   }
 });
 

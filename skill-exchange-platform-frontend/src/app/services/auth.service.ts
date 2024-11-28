@@ -41,9 +41,10 @@ export class AuthService {
 login(credentials: { email: string; password: string }): Observable<any> {
   return this.http.post(`${this.apiUrl}/login`, credentials).pipe(
     tap((response: any) => {
-      if (response?.user) {
+      if (response?.user && response?.token) {
         localStorage.setItem('userId', response.user._id);
         localStorage.setItem('currentUser', JSON.stringify(response.user));
+        localStorage.setItem('token', response.token); // Store the JWT token
         this.isAuthenticated.next(true);
         this.currentUserSubject.next(response.user);
       } else {
@@ -54,6 +55,7 @@ login(credentials: { email: string; password: string }): Observable<any> {
       console.error('Login failed', err);
       localStorage.removeItem('userId');
       localStorage.removeItem('currentUser');
+      localStorage.removeItem('token'); // Remove token on error
       this.isAuthenticated.next(false);
       this.currentUserSubject.next(null);
       return throwError(() => new Error(err?.error?.message || 'Login failed. Please try again.'));

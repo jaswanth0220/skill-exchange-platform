@@ -5,7 +5,7 @@
   <p class="text-sm text-gray-700">{{ notification.message }}</p>
   <p class="text-xs text-gray-500">{{ notification.createdAt | date:'short' }}</p>
   <ng-container *ngIf="notification.from">
-    <a [routerLink]="['/profile', notification.from._id]" class="text-blue-500 hover:underline">
+    <a [routerLink]="['/users', notification.from._id]" class="text-blue-500 hover:underline">
       View {{ notification.from.name }}'s Profile
     </a>
   </ng-container>

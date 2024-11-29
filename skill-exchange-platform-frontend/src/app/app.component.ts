@@ -41,6 +41,9 @@ export class AppComponent implements OnInit{
   }
   toggleNotifications() {
     this.showNotifications = !this.showNotifications;
+    if (this.showNotifications) {
+      this.loadUnreadCount();
+    }
   }
   logout(){
     this.authService.logout();

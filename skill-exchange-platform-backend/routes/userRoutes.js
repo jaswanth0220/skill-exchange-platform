@@ -191,6 +191,26 @@ router.post('/:id/contact', async (req, res) => {
     res.status(500).json({ message: 'Failed to send contact request' });
   }
 });
-   
+
+router.put('/:id/notifications/read', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Mark all notifications as read
+    user.notifications = user.notifications.map(notification => ({
+      ...notification.toObject(),
+      read: true
+    }));
+
+    await user.save();
+    res.json({ message: 'Notifications marked as read' });
+  } catch (error) {
+    console.error('Error marking notifications as read:', error);
+    res.status(500).json({ message: 'Failed to mark notifications as read' });
+  }
+});
 
 module.exports = router;

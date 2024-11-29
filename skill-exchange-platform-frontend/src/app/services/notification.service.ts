@@ -39,4 +39,14 @@ export class NotificationService {
       })
     );
   }
+
+  markNotificationsAsRead(): Observable<any> {
+    const userId = localStorage.getItem('userId');
+    return this.http.put(`${this.apiUrl}/${userId}/notifications/read`, {}).pipe(
+      catchError(error => {
+        console.error('Error marking notifications as read:', error);
+        throw error;
+      })
+    );
+  }
 }

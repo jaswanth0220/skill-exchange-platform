@@ -32,9 +32,10 @@ export class NotificationsComponent implements OnInit {
   loadNotifications(): void {
     this.notificationService.getNotifications().subscribe({
       next: (notifications) => {
-        console.log('Raw notifications:', notifications);
         this.notifications = notifications;
-        console.log('Processed notifications:', this.notifications);
+        if (notifications.some(n => !n.read)) {
+          this.notificationService.markNotificationsAsRead().subscribe();
+        }
       },
       error: (error) => {
         this.errorMessage = 'Failed to load notifications';

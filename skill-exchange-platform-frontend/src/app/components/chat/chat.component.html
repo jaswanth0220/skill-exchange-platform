@@ -15,9 +15,15 @@
                 {{ room.lastMessage?.content || 'No messages yet' }}
               </p>
             </div>
-            <span class="text-xs text-gray-400">
-              {{ room.updatedAt | date:'short' }}
-            </span>
+            <div class="flex flex-col items-end">
+              <span class="text-xs text-gray-400">
+                {{ room.updatedAt | date:'short' }}
+              </span>
+              <span *ngIf="room.unreadCount > 0" 
+                    class="bg-primary text-white text-xs rounded-full px-2 py-1 mt-1">
+                {{ room.unreadCount }}
+              </span>
+            </div>
           </div>
         </div>
       </div>

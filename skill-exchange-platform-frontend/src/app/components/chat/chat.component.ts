@@ -89,6 +89,18 @@ export class ChatComponent implements OnInit {
     this.messages = [];
     this.chatService.joinRoom(room._id);
     this.loadMessages(room._id);
+    
+    // Mark messages as read when room is selected
+    if (room.unreadCount > 0) {
+      this.chatService.markMessagesAsRead(room._id).subscribe({
+        next: () => {
+          room.unreadCount = 0;
+        },
+        error: (error) => {
+          console.error('Error marking messages as read:', error);
+        }
+      });
+    }
   }
 
   loadMessages(roomId: string): void {

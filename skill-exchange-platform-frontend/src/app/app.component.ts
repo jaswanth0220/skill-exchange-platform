@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { NotificationService } from './services/notification.service';
 import { NotificationsComponent } from "./components/notifications/notifications.component";
 import { ClickOutsideDirective } from './directives/click-outside.directive';
+import { ChatService } from './services/chat.service';
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -17,8 +18,13 @@ export class AppComponent implements OnInit{
   isAuthenticated:boolean = false;
   showNotifications = false;
   unreadCount = 0;
+  unreadMessagesCount = 0;
 
-  constructor(private authService:AuthService,private notificationService: NotificationService){
+  constructor(
+    private authService:AuthService,
+    private notificationService: NotificationService,
+    private chatService: ChatService
+  ){
   }
 
   ngOnInit() {
@@ -26,6 +32,10 @@ export class AppComponent implements OnInit{
       this.isAuthenticated = isAuthenticated;
       if (isAuthenticated) {
         this.loadUnreadCount();
+        this.loadUnreadMessages();
+        this.chatService.getNewMessages().subscribe(() => {
+          this.loadUnreadMessages();
+        });
       }
     });
   }
@@ -36,6 +46,16 @@ export class AppComponent implements OnInit{
       },
       error: (error) => {
         console.error('Error loading unread count:', error);
+      }
+    });
+  }
+  loadUnreadMessages() {
+    this.chatService.getTotalUnreadCount().subscribe({
+      next: (count) => {
+        this.unreadMessagesCount = count;
+      },
+      error: (error) => {
+        console.error('Error loading unread messages count:', error);
       }
     });
   }

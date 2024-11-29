@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, map } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { catchError } from 'rxjs/operators';
 
@@ -24,8 +24,12 @@ export interface ChatParticipant {
 
 export interface ChatRoom {
   _id: string;
-  participants: ChatParticipant[];
-  lastMessage?: Message;
+  participants: any[];
+  lastMessage?: {
+    content: string;
+    createdAt: Date;
+  };
+  unreadCount: number;
   updatedAt: Date;
 }
 
@@ -48,6 +52,7 @@ export class ChatService {
     this.socket.on('newMessage', (message: Message) => {
       console.log('New message received in service:', message);
       this.newMessageSubject.next(message);
+      this.getChatRooms().subscribe();
     });
   }
 
@@ -108,5 +113,20 @@ export class ChatService {
   joinRoom(roomId: string): void {
     console.log('Joining room:', roomId);
     this.socket.emit('joinRoom', roomId);
+  }
+
+  markMessagesAsRead(roomId: string): Observable<any> {
+    return this.http.put(`${this.apiUrl}/rooms/${roomId}/read`, {}, { headers: this.getHeaders() }).pipe(
+      catchError(error => {
+        console.error('Error marking messages as read:', error);
+        throw error;
+      })
+    );
+  }
+
+  getTotalUnreadCount(): Observable<number> {
+    return this.getChatRooms().pipe(
+      map(rooms => rooms.reduce((total, room) => total + (room.unreadCount || 0), 0))
+    );
   }
 }

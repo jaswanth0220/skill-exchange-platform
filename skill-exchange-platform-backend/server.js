@@ -63,7 +63,7 @@ function setupSocketIO() {
         const chatRoom = await ChatRoom.findOne({
           _id: roomId,
           participants: socket.userId
-        });
+        }).populate('participants', '_id name');
 
         if (!chatRoom) {
           throw new Error('Chat room not found');
@@ -71,7 +71,10 @@ function setupSocketIO() {
 
         const newMessage = {
           _id: new mongoose.Types.ObjectId(),
-          sender: socket.userId,
+          sender: {
+            _id: socket.userId,
+            name: chatRoom.participants.find(p => p._id.toString() === socket.userId).name
+          },
           content,
           read: false,
           roomId,
@@ -82,18 +85,10 @@ function setupSocketIO() {
         chatRoom.lastMessage = newMessage;
         await chatRoom.save();
 
-        // Populate the sender information before emitting
-        const populatedMessage = await ChatRoom.populate(newMessage, {
-          path: 'sender',
-          select: '_id name'
-        });
-
-        // Broadcast to all clients in the room
-        socket.to(roomId).emit('newMessage', populatedMessage);
-        // Also emit to sender
-        socket.emit('newMessage', populatedMessage);
+        // Emit to all clients in the room including sender
+        io.in(roomId).emit('newMessage', newMessage);
         
-        callback(populatedMessage);
+        callback(newMessage);
       } catch (error) {
         console.error('Error sending message:', error);
         callback({ error: 'Failed to send message' });

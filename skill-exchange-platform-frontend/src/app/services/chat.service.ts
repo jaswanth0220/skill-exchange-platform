@@ -6,7 +6,10 @@ import { catchError } from 'rxjs/operators';
 
 export interface Message {
   _id: string;
-  sender: string;
+  sender: {
+    _id: string;
+    name: string;
+  };
   receiver: string;
   content: string;
   createdAt: Date;
@@ -40,10 +43,6 @@ export class ChatService {
         token: localStorage.getItem('token')
       },
       transports: ['websocket']
-    });
-
-    this.socket.on('connect', () => {
-      console.log('Socket connected with ID:', this.socket.id);
     });
 
     this.socket.on('newMessage', (message: Message) => {
@@ -80,14 +79,15 @@ export class ChatService {
   }
 
   sendMessage(roomId: string, content: string): Observable<Message> {
+    const message = { roomId, content };
     return new Observable(observer => {
-      this.socket.emit('sendMessage', { roomId, content }, (response: any) => {
+      this.socket.emit('sendMessage', message, (response: any) => {
         if (response.error) {
           observer.error(response.error);
         } else {
           observer.next(response);
+          observer.complete();
         }
-        observer.complete();
       });
     });
   }
@@ -106,6 +106,7 @@ export class ChatService {
   }
 
   joinRoom(roomId: string): void {
+    console.log('Joining room:', roomId);
     this.socket.emit('joinRoom', roomId);
   }
 }

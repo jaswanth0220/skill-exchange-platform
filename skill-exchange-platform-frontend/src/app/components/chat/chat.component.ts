@@ -39,12 +39,9 @@ export class ChatComponent implements OnInit {
     this.chatService.getNewMessages().subscribe(message => {
       console.log('Received message in component:', message);
       if (this.currentRoom && message.roomId === this.currentRoom._id) {
-        // Check if message already exists
-        if (!this.messages.some(m => m._id === message._id)) {
-          this.messages = [...this.messages, message];
-          this.changeDetectorRef.detectChanges();
-          this.scrollToBottom();
-        }
+        this.messages = [...this.messages, message];
+        this.changeDetectorRef.detectChanges();
+        this.scrollToBottom();
       }
     });
 
@@ -90,7 +87,7 @@ export class ChatComponent implements OnInit {
   selectRoom(room: ChatRoom): void {
     this.currentRoom = room;
     this.messages = [];
-    this.chatService.joinRoom(room._id); // Join the socket room
+    this.chatService.joinRoom(room._id);
     this.loadMessages(room._id);
   }
 
@@ -118,13 +115,9 @@ export class ChatComponent implements OnInit {
     if (!this.currentRoom || !this.newMessage.trim()) return;
     
     const content = this.newMessage.trim();
-    this.newMessage = ''; // Clear input immediately
+    this.newMessage = '';
 
     this.chatService.sendMessage(this.currentRoom._id, content).subscribe({
-      next: (message) => {
-        // Message will be added through the socket subscription
-        console.log('Message sent successfully:', message);
-      },
       error: (error) => {
         this.errorMessage = 'Failed to send message';
         console.error('Error sending message:', error);
